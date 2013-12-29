@@ -21,8 +21,6 @@
   (define my-nick (b32hash (number->le (key-pair-public my-key) 512)))
   (match (cfg/sym 'OpMode)
     ['exit-node
-     ;; Set up multiplexer
-     (define multiplex-server (run-multiplex-server #:next-port 60002))
      ;; Set up pipeliner 
      (define pipeline-server (run-pipeline-server))
      ;; Set up subcircuiter
@@ -45,8 +43,6 @@
        (write `(add-me-as-server ,my-nick #f) rout)
        (flush-output rout))]
     ['silent-exit
-     ;; Set up multiplexer
-     (define multiplex-server (run-multiplex-server #:next-port 60002))
      ;; Set up pipeliner 
      (define pipeline-server (run-pipeline-server))
      ;; Set up subcircuiter

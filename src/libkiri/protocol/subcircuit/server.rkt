@@ -28,12 +28,11 @@
           (define-values (rin rout) (obfs-connect rhost rport))
           (debug 5 "established next connection to ~a:~a" rhost rport)
           (thread (thunk (scopy-port cin rout)))
-          (copy-port rin cout)]
+          (scopy-port rin cout)]
        ;; out-network
        [2 (assert exit?)
-          (define-values (rin rout) (tcp-connect "localhost"
-                                                 (cfg/int 'multiplex-server-port)))
+          (define-values (rin rout) (tcp-connect "localhost" 60002))
           (thread (thunk (scopy-port cin rout)))
-          (copy-port rin cout)]))))
+          (scopy-port rin cout)]))))
 
 (provide (all-defined-out))

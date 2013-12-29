@@ -23,10 +23,10 @@
   (lambda x
     (match x
       [`(extend ,(? symbol? nck))
-       (debug 5 "extending circuit to ~a" nck)
+       (debug 4 "extending circuit to ~a" nck)
        (write-byte 1 rout)
-       (write-byte (string-length (symbol->string nck)))
-       (write-bytes (string->bytes/utf-8 (symbol->string nck)))
+       (write-byte (string-length (symbol->string nck)) rout)
+       (write-bytes (string->bytes/utf-8 (symbol->string nck)) rout)
        (flush-output rout)
        (define-values (nin nout)
          (authenticate-ports-with-check
