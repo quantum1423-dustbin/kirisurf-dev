@@ -15,3 +15,5 @@
   (for ([nd (cdr nlst)])
     (automaton 'extend nd))
   (apply values (automaton 'seal)))
+
+(provide (all-defined-out))

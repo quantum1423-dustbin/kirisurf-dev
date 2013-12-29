@@ -13,21 +13,21 @@
 (: host-table (HashTable Symbol (List String Integer)))
 (define host-table (make-hash
                     `((t2nhasmbdlyjqxuj2hap35a2sjp4l2ix4c2nhod2l6yj3mrsx5t
-                       . ("nozomi.mirai.ca" 2377))
+                       . ("planetlab1.dojima.wide.ad.jp" 2377))
                       (kbr7va3sf4v5sg4ezcdqoskx3gmqebw4uskatyyrl2lksutryprb
                        . ("hikari.mirai.ca" 2377))
-                      (ehuann2ov46zke6a4kit2s4moxbanhi5mmtb5ofb6xg5fmg5net
-                       . ("taurine.csclub.uwaterloo.ca" 2377)))))
+                      (hn72zoodp7bsgantwrlrtmzpna3u7bpr3gt4nprsa33v7znu6kg
+                       . ("planet1.jaist.ac.jp" 2377)))))
 
 (: adjacency-table (HashTable Symbol (Listof Symbol)))
 (define adjacency-table (make-hash
                          `((t2nhasmbdlyjqxuj2hap35a2sjp4l2ix4c2nhod2l6yj3mrsx5t 
                             . (kbr7va3sf4v5sg4ezcdqoskx3gmqebw4uskatyyrl2lksutryprb
-                               ehuann2ov46zke6a4kit2s4moxbanhi5mmtb5ofb6xg5fmg5net))
+                               hn72zoodp7bsgantwrlrtmzpna3u7bpr3gt4nprsa33v7znu6kg))
                            (kbr7va3sf4v5sg4ezcdqoskx3gmqebw4uskatyyrl2lksutryprb
                             . (t2nhasmbdlyjqxuj2hap35a2sjp4l2ix4c2nhod2l6yj3mrsx5t
-                               ehuann2ov46zke6a4kit2s4moxbanhi5mmtb5ofb6xg5fmg5net))
-                           (ehuann2ov46zke6a4kit2s4moxbanhi5mmtb5ofb6xg5fmg5net
+                               hn72zoodp7bsgantwrlrtmzpna3u7bpr3gt4nprsa33v7znu6kg))
+                           (hn72zoodp7bsgantwrlrtmzpna3u7bpr3gt4nprsa33v7znu6kg
                             . (t2nhasmbdlyjqxuj2hap35a2sjp4l2ix4c2nhod2l6yj3mrsx5t
                                kbr7va3sf4v5sg4ezcdqoskx3gmqebw4uskatyyrl2lksutryprb)))))
 
