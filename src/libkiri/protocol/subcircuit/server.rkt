@@ -19,6 +19,7 @@
        [0 (copy-port cin cout)]
        ;; in-network
        [1 (define next-nick-length (eliminate-eof (read-byte cin)))
+          (debug 5 "next nick length is ~a" next-nick-length)
           (define next-nick (eliminate-eof (read-bytes next-nick-length cin)))
           (debug 5 "next nick is ~a" next-nick)
           (define-values (rhost rport) (node-host 
