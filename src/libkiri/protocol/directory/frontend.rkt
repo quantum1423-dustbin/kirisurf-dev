@@ -6,10 +6,7 @@
 (require libkiri/kiss/obfuscation)
 (require libkiri/protocol/authentication)
 (require racket/math)
-<<<<<<< HEAD
 (require libkiri/nicker)
-=======
->>>>>>> e778690b1b55f426321e2516a57bd6622f1c2ebb
 
 (struct: directory-info ((host-table : (HashTable Symbol (List String Integer)))
                          (adjacency-table : (HashTable Symbol (Listof Symbol)))
@@ -23,10 +20,7 @@
 
 (: obtain-directory (-> Directory))
 (define (obtain-directory)
-<<<<<<< HEAD
   (set! _expire_time (+ (current-seconds) 3600))
-=======
->>>>>>> e778690b1b55f426321e2516a57bd6622f1c2ebb
   (define-values (rin rout) (obfs-connect "nozomi.mirai.ca" 2380))
   
   (write '(get-info) rout)
@@ -52,11 +46,7 @@
                     ip
                     (exact-floor (real-part
                                   (assure-not-false (string->number port))))
-<<<<<<< HEAD
                     (if (equal? exit? "true") #t #f)
-=======
-                    (if (equal? nick "true") #t #f)
->>>>>>> e778690b1b55f426321e2516a57bd6622f1c2ebb
                     (map string->symbol adjs))]
              [_ (error "WTF")]))
          raw-lines))
