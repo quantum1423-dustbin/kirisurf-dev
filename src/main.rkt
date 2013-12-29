@@ -57,3 +57,5 @@
     [_else (error "Invalid operation mode.")])
   ;; Now we set up the client
   (block-forever))
+
+(run-node)
