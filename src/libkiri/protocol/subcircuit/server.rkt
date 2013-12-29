@@ -24,6 +24,7 @@
                                         (string->symbol 
                                          (bytes->string/utf-8 next-nick))))
           (define-values (rin rout) (obfs-connect rhost rport))
+          (debug 5 "established next connection to ~a:~a" rhost rport)
           (thread (thunk (scopy-port cin rout)))
           (copy-port rin cout)]
        ;; out-network
