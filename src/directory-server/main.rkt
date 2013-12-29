@@ -35,7 +35,7 @@
 (define exit-table (make-hash
                     `((t2nhasmbdlyjqxuj2hap35a2sjp4l2ix4c2nhod2l6yj3mrsx5t . #t)
                       (kbr7va3sf4v5sg4ezcdqoskx3gmqebw4uskatyyrl2lksutryprb . #t)
-                      (ehuann2ov46zke6a4kit2s4moxbanhi5mmtb5ofb6xg5fmg5net . #t))))
+                      (hn72zoodp7bsgantwrlrtmzpna3u7bpr3gt4nprsa33v7znu6kg . #t))))
 
 (: gen-adjacent-nodes (String -> (Listof Symbol)))
 (define (gen-adjacent-nodes ipaddr)
