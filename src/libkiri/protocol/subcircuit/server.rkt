@@ -20,6 +20,7 @@
        ;; in-network
        [1 (define next-nick-length (eliminate-eof (read-byte cin)))
           (define next-nick (eliminate-eof (read-bytes next-nick-length cin)))
+          (debug 5 "next nick is ~a" next-nick)
           (define-values (rhost rport) (node-host 
                                         (string->symbol 
                                          (bytes->string/utf-8 next-nick))))

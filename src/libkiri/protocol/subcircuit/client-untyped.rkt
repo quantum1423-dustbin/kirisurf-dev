@@ -22,7 +22,8 @@
   (define circuit (list nick))
   (lambda x
     (match x
-      [`(extend ,(? symbol? nck)) 
+      [`(extend ,(? symbol? nck))
+       (debug 5 "extending circuit to ~a" nck)
        (write-byte 1 rout)
        (write-byte (string-length (symbol->string nck)))
        (write-bytes (string->bytes/utf-8 (symbol->string nck)))
