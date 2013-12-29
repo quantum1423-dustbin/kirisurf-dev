@@ -109,6 +109,7 @@
                      adjnodes)
           (hash-set! exit-table
                      nick
-                     exit?))]))))
+                     exit?)
+          (debug 5 "Current nodes: ~a" adjacency-table))]))))
 
 (block-forever)
