@@ -32,6 +32,7 @@
        (debug 6 "pack read: ~a" blah)
        (match blah
          [(create-connection connid host port)
+          (debug 5 "received request to open connection to ~a:~a" host port)
           (thread
            (thunk
             (define-values (rin rout) (tcp-connect host port))
