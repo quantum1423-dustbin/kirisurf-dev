@@ -3,10 +3,12 @@
 (require libkiri/nicker)
 (require libkiri/config)
 (require libkiri/crypto/securedh)
-(require libkiri/protocol/multiplex/server)
 (require libkiri/protocol/pipeline/server)
+(require libkiri/protocol/pipeline/client)
 (require libkiri/protocol/subcircuit/server)
 (require libkiri/kiss/obfuscation)
+(require "circuit-builder.rkt")
+(require libkiri/protocol/directory/frontend)
 
 (: destructor (-> Void))
 (define destructor (thunk (debug 3 "Kirisurf safe shutdown complete. Bye.") (void)))
@@ -52,6 +54,12 @@
     ['client (void)]
     [_else (error "Invalid operation mode.")])
   ;; Now we set up the client
-  (block-forever))
+  (define lb1
+    (run-pipeline-client #:local-port (cfg/int 'SocksPort)
+                         #:portgen (thunk
+                                    (build-circuit
+                                     (get-server-path)))))
+  (void))
 
 (run-node)
+(block-forever)

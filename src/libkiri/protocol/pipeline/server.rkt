@@ -32,11 +32,11 @@
        (debug 6 "pack read: ~a" blah)
        (match blah
          [(create-connection connid host port)
-          (define-values (rin rout) (tcp-connect host port))
-          (hash-set! connection-table connid (list rin rout))
-          ;; downstream part
           (thread
            (thunk
+            (define-values (rin rout) (tcp-connect host port))
+            (hash-set! connection-table connid (list rin rout))
+            ;; downstream part
             (with-cleanup (λ() (close-input-port rin) (close-output-port rout))
               (let: innerloop : Void ()
                 (define blah (read-bytes-avail rin))

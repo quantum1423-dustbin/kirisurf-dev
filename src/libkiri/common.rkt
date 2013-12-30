@@ -93,7 +93,7 @@
 (define (make-dummy b)
   identity)
 
-(define DEBUG-LEVEL 5)
+(define DEBUG-LEVEL 4)
 
 ;Debug levels:
 ;1: Usual info, for user to see, such as progress

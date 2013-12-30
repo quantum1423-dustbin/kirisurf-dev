@@ -113,12 +113,12 @@
   (define (auxiliary current history)
     (debug 5 "building circuit path at ~a" (cons current history))
     (cond
-      ;; If current is viable exit, and 1/5 dice roll, then now is the time
+      ;; If current is viable exit, and 1/2 dice roll, then now is the time
       ;; Another case: path length too long (> 5)
       [(and (exit? current)
-            (or (and (< (get-random 100) 25)
-                     (>= (length history) 2))
-                (> (length history) 5))) (reverse (cons current history))]
+            (or (and (< (get-random 100) 50)
+                     (>= (length history) 0))
+                (> (length history) 0))) (reverse (cons current history))]
       ;; Otherwise, we extend the path.
       [else (define adjacent-nodes (get-adjacent current))
             (debug 5 "~a is adjacent to ~a" current adjacent-nodes)

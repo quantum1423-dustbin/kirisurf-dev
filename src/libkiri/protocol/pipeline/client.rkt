@@ -16,7 +16,9 @@
   (close-input-port deadin)
   (close-output-port deadout)
   
-  (define-values (qrin qrout) (values deadin deadout))
+  (define-values (qrin qrout) (portgen))
+  
+  (define goo (make-semaphore 1))
   
   
   (: big-channel (Channelof Pack))
@@ -97,6 +99,31 @@
        
        (debug 5 "connection request to ~a:~a read" rhost rport)
        
+       
+       ;; Make sure the underlying thing is actually open
+       (with-lock goo
+         (cond
+           [(or (port-closed? qrin)
+                (port-closed? qrout))
+            (debug 4 "Underlying transport broken! Trying to recover")
+            ;; Refresh
+            (define-values (nin nout) (portgen))
+            (debug 5 "Recovered ~a ~a" nin nout)
+            (close-input-port qrin)
+            (close-output-port qrout)
+            (set! qrin nin)
+            (set! qrout nout)]
+           [else (void)]))
+       
+       ;; connid
+       (define CONNID (get-connid))
+       (hash-set! connection-table CONNID (list cin cout))
+       
+       (with-lock little-lock
+         (write-pack (create-connection CONNID rhost rport)
+                     qrout)
+         (debug 5 "pack written"))
+       
        ;; respond
        (write-byte 5 cout)
        (write-byte 0 cout)
@@ -105,29 +132,6 @@
        (flush-output cout)
        
        (debug 5 "connection established")
-       
-       ;; Make sure the underlying thing is actually open
-       
-       (cond
-         [(or (port-closed? qrin)
-              (port-closed? qrout))
-          (debug 4 "Underlying transport broken! Trying to recover")
-          ;; Refresh
-          (define-values (nin nout) (portgen))
-          (debug 5 "Recovered ~a ~a" nin nout)
-          (close-input-port qrin)
-          (close-output-port qrout)
-          (set! qrin nin)
-          (set! qrout nout)]
-         [else (void)])
-       
-       ;; connid
-       (define CONNID (get-connid))
-       (hash-set! connection-table CONNID (list cin cout))
-       
-       (with-lock little-lock
-         (write-pack (create-connection CONNID rhost rport)
-                     qrout))
        
        ;; Upstream
        (with-cleanup (λ() (hash-remove! connection-table CONNID))

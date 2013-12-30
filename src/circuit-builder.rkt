@@ -19,8 +19,3 @@
     (apply values (automaton 'seal))))
 
 (provide (all-defined-out))
-
-(build-circuit
-   '(kbr7va3sf4v5sg4ezcdqoskx3gmqebw4uskatyyrl2lksutryprb
-  t2nhasmbdlyjqxuj2hap35a2sjp4l2ix4c2nhod2l6yj3mrsx5t
-  hn72zoodp7bsgantwrlrtmzpna3u7bpr3gt4nprsa33v7znu6kg))
