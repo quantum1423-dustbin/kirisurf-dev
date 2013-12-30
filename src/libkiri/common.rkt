@@ -93,7 +93,7 @@
 (define (make-dummy b)
   identity)
 
-(define DEBUG-LEVEL 4)
+(define DEBUG-LEVEL 5)
 
 ;Debug levels:
 ;1: Usual info, for user to see, such as progress
@@ -202,12 +202,13 @@
     (-> (U Bytes EOF))
     (Input-Port -> (U Bytes EOF))))
 (define (read-bytes-avail (in (current-input-port)))
-  (define buffer (make-bytes 16384))
-  (define c (read-bytes-avail! buffer in))
-  (cond
-    [(eof-object? c) eof]
-    [(procedure? c) (error "WTF??????")]
-    [else (subbytes buffer 0 c)]))
+  (with-handlers ([exn:fail? (lambda(x) eof)])
+    (define buffer (make-bytes 16384))
+    (define c (read-bytes-avail! buffer in))
+    (cond
+      [(eof-object? c) eof]
+      [(procedure? c) (error "WTF??????")]
+      [else (subbytes buffer 0 c)])))
 
 ; GC port
 (: gcport (Port -> Port))
@@ -245,7 +246,7 @@
 
 ;; Generic TCP server thingy
 (: server-with-dispatch (String Integer (Input-Port Output-Port -> Void)
-                                 -> TCP-Listener))
+                                -> TCP-Listener))
 (define (server-with-dispatch host port lmbd)
   (define toret (tcp-listen port 4 #t host))
   (thread
@@ -298,7 +299,7 @@
   (cond
     [(eof-object? bloo) #""]
     [else (bytes-append bloo (read-to-end in))]))
-  
+
 (debug 3 "Base library loaded")
 
 (provide (all-defined-out))
