@@ -31,11 +31,11 @@
        (define blah (read-pack cin))
        (debug 6 "pack read: ~a" blah)
        (match blah
-         [(create-connection connid host port)
-          (debug 5 "received request to open connection to ~a:~a" host port)
+         [(create-connection connid)
+          (debug 5 "received request to open connection")
           (thread
            (thunk
-            (define-values (rin rout) (tcp-connect host port))
+            (define-values (rin rout) (tcp-connect "localhost" (cfg/int 'NextPort)))
             (hash-set! connection-table connid (list rin rout))
             ;; downstream part
             (with-cleanup (λ() (close-input-port rin) (close-output-port rout))

@@ -25,9 +25,15 @@
 ;; Structs for the many connection in one thing.
 
 (struct: create-connection
-  ((connid : Integer)
-   (host : String)
-   (port : Integer))
+  ((connid : Integer))
+  #:transparent)
+
+(struct: connection-created
+  ((connid : Integer))
+  #:transparent)
+
+(struct: connection-failed
+  ((connid : Integer))
   #:transparent)
 
 (struct: close-connection
@@ -47,8 +53,6 @@
 (define (read-pack in)
   (match (read-byte in)
     [0 (create-connection
-        (read-le-number 2 in)
-        (bytes->string/utf-8 (read-pascal-bytes in))
         (read-le-number 2 in))]
     [1 (close-connection
         (read-le-number 2 in))]
@@ -61,13 +65,8 @@
 (: write-pack (Pack Output-Port -> Void))
 (define (write-pack pk out)
   (match pk
-    [(create-connection connid
-                        host
-                        port) (write-byte 0 out)
-                              (write-le-number connid 2 out)
-                              (write-pascal-bytes (string->bytes/utf-8 host)
-                                                  out)
-                              (write-le-number port 2 out)]
+    [(create-connection connid) (write-byte 0 out)
+                              (write-le-number connid 2 out)]
     [(close-connection connid) (write-byte 1 out)
                                (write-le-number connid 2 out)]
     [(data connid body) (write-byte 2 out)
