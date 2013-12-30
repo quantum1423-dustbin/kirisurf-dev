@@ -4,17 +4,19 @@
 
 
 (: run-pipeline-client (#:local-port Integer
-                                     #:remote-host String
-                                     #:remote-port Integer
+                                     #:portgen
+                                     (-> (values Input-Port
+                                                 Output-Port))
                                      -> TCP-Listener))
 (define (run-pipeline-client #:local-port lport
-                             #:remote-host rhost
-                             #:remote-port rport)
+                             #:portgen portgen)
   (debug 4 "SOCKS over PIPELINE proxy started")
   
+  (define-values (deadin deadout) (make-pipe))
+  (close-input-port deadin)
+  (close-output-port deadout)
   
-  (define-values (qrin qrout) (tcp-connect rhost
-                                           rport))
+  (define-values (qrin qrout) (values deadin deadout))
   
   
   (: big-channel (Channelof Pack))
@@ -83,7 +85,8 @@
               (set! retthing (bytes-append (bytes 1 ip1 ip2 ip3 ip4) blah))
               (values ipstring portnum)]
            [3 (define namelen (Read-byte cin))
-              (define fullname (bytes->string/utf-8 (eliminate-eof (read-bytes namelen cin))))
+              (define fullname (bytes->string/utf-8 
+                                (eliminate-eof (read-bytes namelen cin))))
               (define blah (eliminate-eof (read-bytes 2 cin)))
               (define portnum (be->number blah))
               (set! retthing (bytes-append (bytes 3 namelen)
@@ -102,6 +105,21 @@
        (flush-output cout)
        
        (debug 5 "connection established")
+       
+       ;; Make sure the underlying thing is actually open
+       
+       (cond
+         [(or (port-closed? qrin)
+              (port-closed? qrout))
+          (debug 4 "Underlying transport broken! Trying to recover")
+          ;; Refresh
+          (define-values (nin nout) (portgen))
+          (debug 5 "Recovered ~a ~a" nin nout)
+          (close-input-port qrin)
+          (close-output-port qrout)
+          (set! qrin nin)
+          (set! qrout nout)]
+         [else (void)])
        
        ;; connid
        (define CONNID (get-connid))
@@ -128,28 +146,32 @@
   (thread
    (thunk
     (with-cleanup (λ() (close-input-port qrin)
-                    (close-output-port qrout)
-                    (tcp-close toret))
+                    (close-output-port qrout))
       (let: loop : Void ()
-        (define new-data (read-pack qrin))
-        (match new-data
-          [(close-connection connid) (when (hash-has-key? connection-table connid)
-                                       (define-values (cin cout) (table-lookup connid))
-                                       (close-input-port cin)
-                                       (close-output-port cout))
+        (cond
+          [(or (port-closed? qrin)
+               (port-closed? qrout)) (sleep 1)
                                      (loop)]
-          [(data connid body) (when (hash-has-key? connection-table connid)
-                                (define-values (cin cout) (table-lookup connid))
-                                (write-bytes body cout)
-                                (flush-output cout))
-                              (loop)]
-          [_ (error "Protocol break.")])))))
+          [else 
+           (with-handlers ([exn:fail? (λ(x) (pretty-print x)
+                                        (close-input-port qrin)
+                                        (close-output-port qrout)
+                                        (sleep 1)
+                                        (loop))])
+             (define new-data (read-pack qrin))
+             (match new-data
+               [(close-connection connid) (when (hash-has-key? connection-table connid)
+                                            (define-values (cin cout) (table-lookup connid))
+                                            (close-input-port cin)
+                                            (close-output-port cout))
+                                          (loop)]
+               [(data connid body) (when (hash-has-key? connection-table connid)
+                                     (define-values (cin cout) (table-lookup connid))
+                                     (write-bytes body cout)
+                                     (flush-output cout))
+                                   (loop)]
+               [_ (error "Protocol break.")]))])))))
   
   toret)
 
-(define bloo 
-  (run-pipeline-client #:local-port 44444
-                       #:remote-host "localhost"
-                       #:remote-port 60002))
-
-(block-forever)
+(provide (all-defined-out))
