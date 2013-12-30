@@ -50,6 +50,7 @@
      ;; Set up subcircuiter
      (define subcircuit-server (run-subcircuit-server #:port (cfg/int 'NRPort)
                                                       #:exit? #t))
+     (block-forever)
      (void)]
     ['client (void)]
     [_else (error "Invalid operation mode.")])
