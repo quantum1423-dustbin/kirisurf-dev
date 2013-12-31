@@ -22,6 +22,19 @@
   (: huge-channel (Channelof Any))
   (define huge-channel (make-channel))
   
+  (define outstanding-echos (make-atombox 0))
+  
+  ;; Echo pusher
+  (define echthread
+    (thread
+     (thunk
+      (let loop()
+        (sleep 4)
+        (debug 5 "outstanding echos: ~a" (atomcount outstanding-echos))
+        (channel-put huge-channel (echo))
+        (atombox-incr! outstanding-echos)
+        (loop)))))
+  
   ;; obtain a connid
   (: get-connid (-> Integer))
   (define (get-connid)
@@ -56,9 +69,11 @@
      (thunk
       (with-cleanup (λ() (debug 5 "OMGGGGG")
                       (for ([bloog (hash->list huge-table)])
-                           (close-output-port (cdr bloog)))
+                        (close-output-port (cdr bloog)))
                       (close-input-port qrin)
-                      (close-output-port qrout))
+                      (close-output-port qrout)
+                      (when (tcp-listener? toret)
+                        (tcp-close toret)))
         (let: loop : Void ()
           (define goo (channel-get huge-channel))
           (match goo
@@ -68,6 +83,8 @@
                                (loop)]
             [(create-connection connid) (write-pack (create-connection connid) qrout)
                                         (loop)]
+            [(echo) (write-pack (echo) qrout)
+                    (loop)]
             [_ (error " WTFFFFF")]))))))
   
   
@@ -78,18 +95,26 @@
      (thunk
       (with-cleanup (λ() (debug 5 "WTFFFFF")
                       (for ([bloog (hash->list huge-table)])
-                           (close-output-port (cdr bloog)))
+                        (close-output-port (cdr bloog)))
                       (close-input-port qrin)
-                      (close-output-port qrout))
+                      (close-output-port qrout)
+                      (when (tcp-listener? toret)
+                        (tcp-close toret)))
         (let: loop : Void ()
-          (define new-pack (read-pack qrin))
-          (match new-pack
-            [(data connid bts) (write-bytes bts (hash-ref huge-table connid))
-                               (loop)]
-            [(close-connection connid) (close-output-port (hash-ref huge-table connid))
-                                       (hash-remove! huge-table connid)
-                                       (loop)]
-            [_ (error "WTF")]))))))
+          (with-handlers ([exn:fail? (lambda(x)
+                                       (debug 5 "~a" x)
+                                       (loop))])
+            (define new-pack (read-pack qrin))
+            (match new-pack
+              [(data connid bts) (write-bytes bts (hash-ref huge-table connid))
+                                 (flush-output (hash-ref huge-table connid))
+                                 (loop)]
+              [(close-connection connid) (close-output-port (hash-ref huge-table connid))
+                                         (hash-remove! huge-table connid)
+                                         (loop)]
+              [(echo) (atombox-decr! outstanding-echos)
+                      (loop)]
+              [_ (error "WTF")])))))))
   
   toret)
 
