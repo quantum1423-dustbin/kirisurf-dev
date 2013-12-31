@@ -45,7 +45,8 @@
                                        (hash-ref huge-table connid))
                                       (hash-remove! huge-table connid)
                                       (loop)]
-           [(echo) (channel-put huge-channel (echo))]
+           [(echo) (channel-put huge-channel (echo))
+                   (loop)]
            [_ (error "Well, yeah.")])))))
      (let loop()
        (define hoo (channel-get huge-channel))
@@ -58,6 +59,6 @@
          [(echo) (write-pack (echo) cout)
                  (loop)]
          ['panic (void)]
-         [_ (void)])))))
+         [x (debug 5 "WTF IS THIS!!! ~a" x) (void)])))))
 
 (provide (all-defined-out))
