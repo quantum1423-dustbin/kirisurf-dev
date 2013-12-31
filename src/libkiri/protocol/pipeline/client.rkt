@@ -17,123 +17,81 @@
   (close-output-port deadout)
   
   (define-values (qrin qrout) (portgen))
+  (: huge-table (HashTable Integer Output-Port))
+  (define huge-table (make-hash))
+  (: huge-channel (Channelof Any))
+  (define huge-channel (make-channel))
   
-  (define goo (make-semaphore 1))
-  
-  (thread 
-   (thunk
-    (let loop()
-      (sleep 5)
-      (debug 5 "connid hash count: ~a" (hash-count connection-table))
-      (loop))))
-  
-  
-  (: big-channel (Channelof Pack))
-  (define big-channel (make-channel))
-  (: connection-table (HashTable Integer (List Input-Port Output-Port)))
-  (define connection-table (make-hash))
-  (: table-lookup (Integer -> (values Input-Port Output-Port)))
-  (define (table-lookup key)
-    (apply values (hash-ref connection-table key)))
-  (: reverse-lookup (Input-Port -> Integer))
-  (define (reverse-lookup val)
-    (cdr (assure-not-false
-          (assoc val (map (λ: ((b : (Pair Integer (List Input-Port Output-Port))))
-                            (match b
-                              [(cons a (list c d)) (cons c a)]))
-                          (hash->list connection-table))))))
-  
+  ;; obtain a connid
   (: get-connid (-> Integer))
   (define (get-connid)
-    (assert (< (hash-count connection-table) 65535))
-    (define toret (random 65535))
+    (define goo (random 65535))
     (cond
-      [(hash-has-key? connection-table toret) (get-connid)]
-      [else toret]))
-  (: little-lock Semaphore)
-  (define little-lock (make-semaphore 1))
+      [(hash-has-key? huge-table goo) (get-connid)]
+      [else goo]))
   
-  
+  ;; toret
   (: toret TCP-Listener)
-  (define toret 
+  (define toret
     (server-with-dispatch
-     "localhost"
+     "127.0.0.1"
      lport
      (lambda (cin cout)
-       (debug 5 "accepted a client")
-       
-       (debug 5 "connection request to read")
-       
-       
-       ;; Make sure the underlying thing is actually open
-       (with-lock goo
-         (cond
-           [(or (port-closed? qrin)
-                (port-closed? qrout))
-            (debug 4 "Underlying transport broken! Trying to recover")
-            ;; Refresh
-            (define-values (nin nout) (portgen))
-            (debug 5 "Recovered ~a ~a" nin nout)
-            (close-input-port qrin)
-            (close-output-port qrout)
-            (set! qrin nin)
-            (set! qrout nout)]
-           [else (void)]))
-       
-       ;; connid
        (define CONNID (get-connid))
-       (hash-set! connection-table CONNID (list cin cout))
-       
-       (with-lock little-lock
-         (write-pack (create-connection CONNID)
-                     qrout)
-         (debug 5 "pack written"))
-       
-       (debug 5 "connection established")
-       
-       ;; Upstream
-       (with-cleanup (λ() (hash-remove! connection-table CONNID))
-         (let: loop : Void()
-           (define blah (read-bytes-avail cin))
+       (with-cleanup (λ() (channel-put huge-channel (close-connection CONNID)))
+         (channel-put huge-channel (create-connection CONNID))
+         (hash-set! huge-table CONNID cout)
+         ;; Now we do the thing
+         (let: loop : Void ()
+           (define bts (read-bytes-avail cin))
            (cond
-             [(eof-object? blah) (debug 5 "eof on upstream here")
-                                 (with-lock little-lock
-                                   (write-pack (close-connection CONNID)
-                                               qrout))]
-             [else (with-lock little-lock
-                     (write-pack (data CONNID blah) qrout))
+             [(eof-object? bts) (void)]
+             [else (channel-put huge-channel (data CONNID bts))
                    (loop)]))))))
   
+  ;; Upstream
+  (: up-thread Thread)
+  (define up-thread
+    (thread
+     (thunk
+      (with-cleanup (λ() (debug 5 "OMGGGGG")
+                      (for ([bloog (hash->list huge-table)])
+                           (close-output-port (cdr bloog)))
+                      (close-input-port qrin)
+                      (close-output-port qrout))
+        (let: loop : Void ()
+          (define goo (channel-get huge-channel))
+          (match goo
+            [(close-connection connid) (write-pack (close-connection connid) qrout)
+                                       (loop)]
+            [(data connid dat) (write-pack (data connid dat) qrout)
+                               (loop)]
+            [(create-connection connid) (write-pack (create-connection connid) qrout)
+                                        (loop)]
+            [_ (error " WTFFFFF")]))))))
+  
+  
   ;; Downstream
-  (thread
-   (thunk
-    (with-cleanup (λ() (close-input-port qrin)
-                    (close-output-port qrout))
-      (let: loop : Void ()
-        (cond
-          [(or (port-closed? qrin)
-               (port-closed? qrout)) (sleep 1)
-                                     (loop)]
-          [else 
-           (with-handlers ([exn:fail? (λ(x) (pretty-print x)
-                                        (close-input-port qrin)
-                                        (close-output-port qrout)
-                                        (sleep 1)
-                                        (loop))])
-             (define new-data (read-pack qrin))
-             (match new-data
-               [(close-connection connid) (when (hash-has-key? connection-table connid)
-                                            (define-values (cin cout) (table-lookup connid))
-                                            (close-input-port cin)
-                                            (close-output-port cout))
-                                          (loop)]
-               [(data connid body) (when (hash-has-key? connection-table connid)
-                                     (define-values (cin cout) (table-lookup connid))
-                                     (write-bytes body cout)
-                                     (flush-output cout))
-                                   (loop)]
-               [_ (error "Protocol break.")]))])))))
+  (: down-thread Thread)
+  (define down-thread
+    (thread
+     (thunk
+      (with-cleanup (λ() (debug 5 "WTFFFFF")
+                      (for ([bloog (hash->list huge-table)])
+                           (close-output-port (cdr bloog)))
+                      (close-input-port qrin)
+                      (close-output-port qrout))
+        (let: loop : Void ()
+          (define new-pack (read-pack qrin))
+          (match new-pack
+            [(data connid bts) (write-bytes bts (hash-ref huge-table connid))
+                               (loop)]
+            [(close-connection connid) (close-output-port (hash-ref huge-table connid))
+                                       (hash-remove! huge-table connid)
+                                       (loop)]
+            [_ (error "WTF")]))))))
   
   toret)
+
 
 (provide (all-defined-out))

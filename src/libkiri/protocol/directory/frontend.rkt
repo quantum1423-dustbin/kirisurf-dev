@@ -117,8 +117,8 @@
       ;; Another case: path length too long (> 5)
       [(and (exit? current)
             (or (and (< (get-random 100) 50)
-                     (>= (length history) 0))
-                (> (length history) 0))) (reverse (cons current history))]
+                     (>= (length history) 2))
+                (> (length history) 5))) (reverse (cons current history))]
       ;; Otherwise, we extend the path.
       [else (define adjacent-nodes (get-adjacent current))
             (debug 5 "~a is adjacent to ~a" current adjacent-nodes)
@@ -131,8 +131,8 @@
                                        [(and (exit? current)
                                              (>= (length history) 2))
                                         (reverse (cons current history))]
-                                       [else (error "Cannot find viable next node"
-                                                    (cons current history))])]
+                                       [else (define next-node (selector adjacent-nodes))
+                                             (auxiliary next-node (cons current history))])]
               [else 
                ;; Then we select our next node.
                (define next-node (selector viable-nexts))

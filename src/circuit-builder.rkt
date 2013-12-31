@@ -1,4 +1,5 @@
 #lang typed/racket
+(require libkiri/common)
 (require libkiri/protocol/subcircuit/client)
 (require libkiri/protocol/directory/frontend)
 
@@ -15,7 +16,8 @@
                     ihost
                     iport))
     (for ([nd (cdr nlst)])
-      (automaton 'extend nd))
+      (with-timeout 15000 
+        (thunk (automaton 'extend nd))))
     (apply values (automaton 'seal))))
 
 (provide (all-defined-out))

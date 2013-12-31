@@ -8,7 +8,7 @@
 (require libkiri/crypto/blowfish-typed)
 
 
-(define ALLOW-BLOWFISH #f)
+(define ALLOW-BLOWFISH #t)
 
 (: kiss-handshake/server
    (DH-Keys Input-Port Output-Port -> KISS-State))
@@ -43,7 +43,6 @@
                                     (HMAC shared-secret
                                           #"kiss1_down"
                                           56))
-                                  (debug 5 "down key is ~a" down-key)
                                   (define up-key
                                     (HMAC shared-secret
                                           #"kiss1_up"
@@ -77,7 +76,6 @@
                                     (HMAC shared-secret
                                           #"kiss1_down"
                                           16))
-                                  (debug 5 "down key is ~a" down-key)
                                   (define up-key
                                     (HMAC shared-secret
                                           #"kiss1_up"
@@ -144,7 +142,6 @@
                                            (define down-key (HMAC shared-secret
                                                                   #"kiss1_down"
                                                                   16))
-                                           (debug 5 "down key is ~a" down-key)
                                            (define up-key (HMAC shared-secret
                                                                 #"kiss1_up"
                                                                 16))

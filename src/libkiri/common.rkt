@@ -300,6 +300,30 @@
     [(eof-object? bloo) #""]
     [else (bytes-append bloo (read-to-end in))]))
 
+(struct: atombox ((count : (Boxof Integer))
+                  (lock : Semaphore)))
+
+(: make-atombox (Integer -> atombox))
+(define (make-atombox int)
+  (atombox (box int) (make-semaphore 1)))
+
+(: atombox-incr! (atombox -> Void))
+(define (atombox-incr! bx)
+  (with-lock (atombox-lock bx)
+    (set-box! (atombox-count bx)
+              (add1 (unbox (atombox-count bx))))))
+
+(: atombox-decr! (atombox -> Void))
+(define (atombox-decr! bx)
+  (with-lock (atombox-lock bx)
+    (set-box! (atombox-count bx)
+              (sub1 (unbox (atombox-count bx))))))
+
+(: atomcount (atombox -> Integer))
+(define (atomcount bx)
+  (with-lock (atombox-lock bx)
+    (unbox (atombox-count bx))))
+
 (debug 3 "Base library loaded")
 
 (provide (all-defined-out))
