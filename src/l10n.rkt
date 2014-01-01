@@ -33,7 +33,7 @@
        ['tunnsets "Tunnel settings:"]
        ['usebrowser "Start up browser automatically"]
        ['finding "Finding servers..."]
-       ['connecting "Connecting prism route layer..."]
+       ['connecting "Connecting..."]
        ['pinging "Pinging servers..."]
        ['connected "Connected!"]
        ['disconnected "Disconnected."]

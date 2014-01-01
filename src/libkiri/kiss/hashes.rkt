@@ -8,7 +8,7 @@
   (HMAC msg #"kiri1" len))
 
 (define (IVHASH msg)
-  (HMAC msg #"hello world" 32))
+  (HMAC msg #"hello world" 16))
 
 (define hex bytes->hex-string)
 

@@ -65,7 +65,9 @@
                             (loop)]
          [(echo) (write-pack (echo) cout)
                  (loop)]
-         ['panic (void)]
+         ['panic (for ([bloo (hash->list huge-table)])
+                   (close-output-port (cdr bloo)))
+                 (void)]
          [x (debug 5 "WTF IS THIS!!! ~a" x) (void)])))))
 
 (provide (all-defined-out))

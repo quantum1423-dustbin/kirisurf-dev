@@ -16,7 +16,7 @@
                     ihost
                     iport))
     (for ([nd (cdr nlst)])
-      (with-timeout 15000 
+      (with-timeout 30000 
         (thunk (automaton 'extend nd))))
     (apply values (automaton 'seal))))
 

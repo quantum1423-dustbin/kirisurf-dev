@@ -1,7 +1,16 @@
 #lang racket/gui
 (require "l10n.rkt")
 (require framework)
-(require "main-support.rkt")
+(require "gui-support.rkt")
+
+(define doer-thread
+  (thread
+   (thunk
+    (let loop()
+      (define action (thread-receive))
+      (action)
+      (sleep 0)
+      (loop)))))
 
 (define _GLOCK (make-semaphore 1))
 
@@ -132,21 +141,19 @@ Idea for layout:
        [label "TESTING"]))
 
 (define (events/set-status txt (prog #f))
-  (OBTAIN-GLOCK)
-  (send layout/top-pane/loading/status set-label txt)
-  (send layout/top-pane/finished/status set-label txt)
-  (when prog
-    (send layout/top-pane/loading/progress set-value prog))
-  (RELEASE-GLOCK))
+  (gui/do
+   (send layout/top-pane/loading/status set-label txt)
+   (send layout/top-pane/finished/status set-label txt)
+   (when prog
+     (send layout/top-pane/loading/progress set-value prog))))
 
 (define (events/switch-tpane num)
-  (OBTAIN-GLOCK)
-  (if (zero? num)
-      (send layout/top-pane change-children
-            (λ(c) (list layout/top-pane/loading)))
-      (send layout/top-pane change-children
-            (λ(c) (list layout/top-pane/finished))))
-  (RELEASE-GLOCK))
+  (gui/do
+   (if (zero? num)
+       (send layout/top-pane change-children
+             (λ(c) (list layout/top-pane/loading)))
+       (send layout/top-pane change-children
+             (λ(c) (list layout/top-pane/finished))))))
 
 (events/switch-tpane 0)
 
@@ -185,11 +192,11 @@ Idea for layout:
 (define (enable-cbutton)
   (send layout/connection-button enable #t))
 
-
+#|
 (define layout/entrynode-button
   (new button%
        [parent layout/mid-pane/top]
-       [label (make-image-button (img "icons/entrynode.png") (l10n 'entrynode))]))
+       [label (make-image-button (img "icons/entrynode.png") (l10n 'entrynode))]))|#
 
 (define layout/settings-button
   (new button%
@@ -336,15 +343,20 @@ Idea for layout:
 (define (test-canvas)
   (define init-d 200000)
   (define init-u 200000)
-  (let loop ([d init-d]syng
+  (let loop ([d init-d]
              [u init-d])
-    (draw-data d u)
+    (gui/do (draw-data d u))
     (sleep 0.1)
     (loop (* (+ 1 (- (/ (random) 4) 0.125)) d)
           (* (+ 1 (- (/ (random) 4) 0.125)) u))))
 
 (draw-data 0 0)
 
-;;(thread Main)
+(define-syntax gui/do
+  (syntax-rules ()
+    [(_ exp1 ...) (thread-send doer-thread
+                               (thunk exp1 ...))]))
+
+(thread Main)
 
 (provide (all-defined-out))

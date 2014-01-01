@@ -11,15 +11,15 @@
 ;; function that calculates a private key and public key pair
 (define (securedh-genpair)
   ;We generate 4096-bit number (512-byte number)
-  (define private (le->number (get-random-bytes 512)))
+  (define private (le->number (get-random-bytes 256)))
   ;We get the public key
-  (define public (expt-mod 2 private GROUP-16))
+  (define public (expt-mod 2 private GROUP-14))
   (key-pair private public))
 
 ;; function which calculates a shared secret from two keys
 (: securedh-getsecret (Integer Integer -> Integer))
 (define (securedh-getsecret local-key
                              remote-key)
-  (expt-mod remote-key local-key GROUP-16))
+  (expt-mod remote-key local-key GROUP-14))
 
 (provide (all-defined-out))
