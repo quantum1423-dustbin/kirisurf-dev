@@ -62,5 +62,7 @@
                                      (get-server-path)))))
   (void))
 
-(run-node)
-(block-forever)
+(define cust (make-custodian))
+(custodian-limit-memory cust
+                        (abs (cfg/int 'MemLimit)))
+(call-in-nested-thread (thunk (run-node) (block-forever)) cust)

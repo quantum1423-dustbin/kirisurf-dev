@@ -8,7 +8,7 @@
 (require libkiri/crypto/blowfish-typed)
 
 
-(define ALLOW-BLOWFISH #t)
+(define ALLOW-BLOWFISH #f)
 
 (: kiss-handshake/server
    (DH-Keys Input-Port Output-Port -> KISS-State))

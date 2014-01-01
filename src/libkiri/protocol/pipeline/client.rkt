@@ -1,6 +1,7 @@
 #lang typed/racket
 (require libkiri/common)
 (require "structs.rkt")
+(require libkiri/port-utils/tokenbucket)
 
 
 (: run-pipeline-client (#:local-port Integer
@@ -30,7 +31,8 @@
      (thunk
       (let loop()
         (sleep 4)
-        (debug 5 "outstanding echos: ~a" (atomcount outstanding-echos))
+        (debug 5 "outstanding echos: ~a; hashcount: ~a" (atomcount outstanding-echos)
+               (hash-count huge-table))
         (channel-put huge-channel (echo))
         (atombox-incr! outstanding-echos)
         (loop)))))
@@ -60,6 +62,7 @@
            (cond
              [(eof-object? bts) (void)]
              [else (channel-put huge-channel (data CONNID bts))
+                   (sleep 0)
                    (loop)]))))))
   
   ;; Upstream
