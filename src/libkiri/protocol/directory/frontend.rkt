@@ -124,7 +124,7 @@
             (debug 5 "~a is adjacent to ~a" current adjacent-nodes)
             ;; We need to filter out nodes we have already visited. Stupid cycle is stupid.
             (define viable-nexts (filter (λ: ((x : Symbol))
-                                           (not (member x history))) adjacent-nodes))
+                                           (not (member x (cons current history)))) adjacent-nodes))
             ;; If all neighbors are already visited, abort or stop, depending on path length
             (cond
               [(empty? viable-nexts) (cond

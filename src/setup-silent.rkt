@@ -8,7 +8,8 @@
 
 (with-output-to-file
     (etc-path "identity.kiridh")
-  (λ() (write our-keys))
+  (λ() (write `(key-pair ,(key-pair-private our-keys)
+                         ,(key-pair-public our-keys))))
   #:exists 'replace)
 
 (with-output-to-file

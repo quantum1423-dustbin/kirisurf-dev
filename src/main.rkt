@@ -61,10 +61,10 @@
                                     (build-circuit
                                      (get-server-path)))))
   lb1)
-
+#|
 (define cust (make-custodian))
 (custodian-limit-memory cust
                         (abs (cfg/int 'MemLimit)))
-(call-in-nested-thread (thunk (run-node) (block-forever)) cust)
+(call-in-nested-thread (thunk (run-node) (block-forever)) cust)|#
 
 (provide (all-defined-out))

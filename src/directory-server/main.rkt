@@ -9,33 +9,26 @@
 
 (define GLOBAL-LOCK (make-semaphore 1))
 
+(define dalst '(qvhtfvin73ezljqrwt5hvk5mo owck7qku3cpym7idvmgxd7zgk tmxce5q3mocoksrdur33r5lpcb))
+
 
 (: host-table (HashTable Symbol (List String Integer)))
 (define host-table (make-hash
-                    `((t2nhasmbdlyjqxuj2hap35a2sjp4l2ix4c2nhod2l6yj3mrsx5t
-                       . ("planetlab1.dojima.wide.ad.jp" 2377))
-                      (kbr7va3sf4v5sg4ezcdqoskx3gmqebw4uskatyyrl2lksutryprb
-                       . ("hikari.mirai.ca" 2377))
-                      (hn72zoodp7bsgantwrlrtmzpna3u7bpr3gt4nprsa33v7znu6kg
-                       . ("planet1.jaist.ac.jp" 2377)))))
+                    `((qvhtfvin73ezljqrwt5hvk5mo . ("csplanetlab3.kaist.ac.kr" 2377)) 
+                      (owck7qku3cpym7idvmgxd7zgk . ("planet1.jaist.ac.jp" 2377))
+                      (tmxce5q3mocoksrdur33r5lpcb . ("planetlab1.dojima.wide.ad.jp" 2377)))))
 
 (: adjacency-table (HashTable Symbol (Listof Symbol)))
 (define adjacency-table (make-hash
-                         `((t2nhasmbdlyjqxuj2hap35a2sjp4l2ix4c2nhod2l6yj3mrsx5t 
-                            . (kbr7va3sf4v5sg4ezcdqoskx3gmqebw4uskatyyrl2lksutryprb
-                               hn72zoodp7bsgantwrlrtmzpna3u7bpr3gt4nprsa33v7znu6kg))
-                           (kbr7va3sf4v5sg4ezcdqoskx3gmqebw4uskatyyrl2lksutryprb
-                            . (t2nhasmbdlyjqxuj2hap35a2sjp4l2ix4c2nhod2l6yj3mrsx5t
-                               hn72zoodp7bsgantwrlrtmzpna3u7bpr3gt4nprsa33v7znu6kg))
-                           (hn72zoodp7bsgantwrlrtmzpna3u7bpr3gt4nprsa33v7znu6kg
-                            . (t2nhasmbdlyjqxuj2hap35a2sjp4l2ix4c2nhod2l6yj3mrsx5t
-                               kbr7va3sf4v5sg4ezcdqoskx3gmqebw4uskatyyrl2lksutryprb)))))
+                         `((qvhtfvin73ezljqrwt5hvk5mo . ,dalst)
+                           (owck7qku3cpym7idvmgxd7zgk . ,dalst)
+                           (tmxce5q3mocoksrdur33r5lpcb . ,dalst))))
 
 (: exit-table (HashTable Symbol Boolean))
 (define exit-table (make-hash
-                    `((t2nhasmbdlyjqxuj2hap35a2sjp4l2ix4c2nhod2l6yj3mrsx5t . #t)
-                      (kbr7va3sf4v5sg4ezcdqoskx3gmqebw4uskatyyrl2lksutryprb . #t)
-                      (hn72zoodp7bsgantwrlrtmzpna3u7bpr3gt4nprsa33v7znu6kg . #t))))
+                         `((qvhtfvin73ezljqrwt5hvk5mo . #t)
+                           (owck7qku3cpym7idvmgxd7zgk . #t)
+                           (tmxce5q3mocoksrdur33r5lpcb . #t))))
 
 (: gen-adjacent-nodes (String -> (Listof Symbol)))
 (define (gen-adjacent-nodes ipaddr)

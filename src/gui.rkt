@@ -84,7 +84,7 @@ Idea for layout:
 
 ;; Graphics
 (define kirilogo
-  (make-object bitmap% "./connected.png" 'png/alpha))
+  (make-object bitmap% "./kiri.png" 'png/alpha))
 
 (define (img pth)
   (make-object bitmap% pth 'png/alpha))
@@ -184,13 +184,17 @@ Idea for layout:
 (define layout/connection-button
   (new button%
        [parent layout/mid-pane/top]
-       [label (make-image-button (img "icons/stop.png") (l10n 'disconnect))]))
+       [label (make-image-button (img "icons/stop.png") (l10n 'disconnect))]
+       [callback callbacks/big-button]))
 
 (define (disable-cbutton)
   (send layout/connection-button enable #f))
 
 (define (enable-cbutton)
   (send layout/connection-button enable #t))
+
+(define (set-cbutton-img! img)
+  (send layout/connection-button set-label img))
 
 #|
 (define layout/entrynode-button

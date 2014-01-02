@@ -3,6 +3,8 @@
 (require "structs.rkt")
 (require libkiri/port-utils/tokenbucket)
 
+(define _UPBYTES (box 0))
+(define _DOWNBYTES (box 0))
 
 (: run-pipeline-client (#:local-port Integer
                                      #:portgen
@@ -83,6 +85,7 @@
             [(close-connection connid) (write-pack (close-connection connid) qrout)
                                        (loop)]
             [(data connid dat) (write-pack (data connid dat) qrout)
+                               (set-box! _UPBYTES (+ (bytes-length dat) (unbox _UPBYTES)))
                                (loop)]
             [(create-connection connid) (write-pack (create-connection connid) qrout)
                                         (loop)]
@@ -111,6 +114,7 @@
             (match new-pack
               [(data connid bts) (write-bytes bts (hash-ref huge-table connid))
                                  (flush-output (hash-ref huge-table connid))
+                                 (set-box! _DOWNBYTES (+ (bytes-length bts) (unbox _DOWNBYTES)))
                                  (loop)]
               [(close-connection connid) (close-output-port (hash-ref huge-table connid))
                                          (hash-remove! huge-table connid)

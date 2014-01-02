@@ -3,7 +3,7 @@
 
 (define-syntax with-lock/ut
   (syntax-rules ()
-    [(_ lck exp1 ...) (with-cleanup (thunk (semaphore-post lck))
+    [(_ lck exp1 ...) (with-cleanup/ut (thunk (semaphore-post lck))
                         (semaphore-wait lck)
                         exp1 ...)]))
 

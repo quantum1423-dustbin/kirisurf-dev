@@ -78,6 +78,13 @@
                         (semaphore-wait lck)
                         exp1 ...)]))
 
+(define-syntax custodian-barrier
+  (syntax-rules()
+    [(_ exp1 ...) (let ([c (make-custodian)])
+                    (with-cleanup (λ() (custodian-shutdown-all c))
+                      (parameterize ([current-custodian c])
+                        exp1 ...)))]))
+
 (define-syntax assert
   (syntax-rules ()
     [(_ exp)
