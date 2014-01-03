@@ -8,7 +8,8 @@
                              Output-Port)))
 (define (build-circuit nlst)
   (with-handlers ([exn:fail?
-                   (λ(x) (error "Circuit failed to build."))])
+                   (λ(x) (debug 3 "~a" x)
+                     (error "Circuit failed to build."))])
     (define-values (ihost iport)
       (node-host (car nlst)))
     (define automaton

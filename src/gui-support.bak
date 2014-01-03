@@ -34,7 +34,7 @@
        (thunk
         (Refresh-Connection))))
     (for ([i 12])
-      (sleep 1)
+      (sleep 0.4)
       (events/set-status (l10n 'connecting)
                          (+ 20 (* 5 i))))
     (thread-wait connector-thread)
@@ -118,7 +118,7 @@ SocksPort : 7500\n")
                  (thunk
                   (Refresh-Connection))))
               (for ([i 12])
-                (sleep 1)
+                (sleep 0.4)
                 (events/set-status (l10n 'connecting)
                                    (+ 20 (* 5 i))))
               (thread-wait connector-thread)

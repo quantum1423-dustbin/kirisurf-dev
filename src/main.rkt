@@ -16,10 +16,11 @@
 
 (define (run-node)
   (define my-key 
-    (match (with-input-from-file (etc-path "identity.kiridh") read)
-      [`(key-pair ,(? exact-integer? private) 
-                  ,(? exact-integer? public)) (key-pair private public)]
-      [_ (error "Can't read the DH keys!")]))
+    (with-handlers ([exn:fail? (λ(x) (key-pair 0 0))])
+      (match (with-input-from-file (etc-path "identity.kiridh") read)
+        [`(key-pair ,(? exact-integer? private) 
+                    ,(? exact-integer? public)) (key-pair private public)]
+        [_ (error "Can't read the DH keys!")])))
   (define my-nick (b32hash (number->le (key-pair-public my-key) 512)))
   (match (cfg/sym 'OpMode)
     ['exit-node

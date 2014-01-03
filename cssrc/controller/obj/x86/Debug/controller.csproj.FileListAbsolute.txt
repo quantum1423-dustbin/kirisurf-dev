@@ -1,0 +1,5 @@
+E:\kirisurf-dev\cssrc\controller\obj\x86\Debug\controller.csprojResolveAssemblyReference.cache
+E:\kirisurf-dev\cssrc\controller\bin\Debug\controller.exe
+E:\kirisurf-dev\cssrc\controller\bin\Debug\controller.pdb
+E:\kirisurf-dev\cssrc\controller\obj\x86\Debug\controller.exe
+E:\kirisurf-dev\cssrc\controller\obj\x86\Debug\controller.pdb

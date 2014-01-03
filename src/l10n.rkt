@@ -26,6 +26,9 @@
        ['probe "Probing internet..."]
        ['nointernet "No internet connection found! Stopping."]
        
+       ['circ-min "Minimum circuit length"]
+       ['circ-max "Maximum circuit length"]
+       
        
        ['prism-on "Activating multiplex layer..."]
        ['multitun-on "Kirisurf connected!"]
@@ -46,6 +49,10 @@
        ['overview "概览"]
        ['details "细节"]
        ['settings "设置"]
+       ['status "状态"]
+       
+       ['actions "控制"]
+       
        ['reportbug "报告错误"]
        
        ['dlspeed "即时速度："]
@@ -56,6 +63,9 @@
        ['rtt "延迟："]
        ['disconnect "断开连接"]
        ['connect "重新连接"]
+       
+       ['circ-min "最短线路长度"]
+       ['circ-max "最长线路长度"]
        
        ['tunnsets "通道设置："]
        ['usebrowser "自动启动浏览器"]

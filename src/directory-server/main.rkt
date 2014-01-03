@@ -96,7 +96,7 @@
           (define adjnodes (gen-adjacent-nodes chost))
           (hash-set! host-table
                      nick
-                     (list chost cport))
+                     (list chost 2377))
           (hash-set! adjacency-table
                      nick
                      adjnodes)

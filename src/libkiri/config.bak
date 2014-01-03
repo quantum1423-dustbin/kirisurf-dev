@@ -6,8 +6,8 @@
                      '((OpMode . "client")
                        (MemLimit . "104857600")
                        (SocksPort . "7500")
-                       (MaxCircuitLength . "3")
-                       (MinCircuitLength . "3"))))
+                       (MaxCircuitLength . "10")
+                       (MinCircuitLength . "4"))))
 
 (define big-lock (make-semaphore 1))
 

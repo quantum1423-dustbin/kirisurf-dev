@@ -41,8 +41,11 @@
                                                                      (data connid boo))
                                                         (sloop)])))))
                                           (loop)]
-              [(data connid boo) (write-bytes boo (hash-ref huge-table connid))
-                                 (flush-output (hash-ref huge-table connid))
+              [(data connid boo) (with-handlers ([exn:fail? (λ(x) (channel-put 
+                                                                   huge-channel
+                                                                   (close-connection connid)))])
+                                   (write-bytes boo (hash-ref huge-table connid))
+                                   (flush-output (hash-ref huge-table connid)))
                                  (loop)]
               [(close-connection connid) (close-output-port
                                           (hash-ref huge-table connid))

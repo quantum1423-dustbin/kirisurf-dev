@@ -2,29 +2,15 @@
 (require "l10n.rkt")
 (require framework)
 (require "gui-support.rkt")
-(require libkiri/untyped)
-
-(define-values (dump-in dump-out)
-  (make-pipe))
 
 (define doer-thread
   (thread
    (thunk
-    (with-cleanup/ut (lambda() (with-output-to-file "panicfile" #:exists 'replace
-                                 (thunk (write "OMGOMG I AM DYING!!!!!!!"))))
-                     (let loop()
-                       (define action (thread-receive))
-                       (action)
-                       (sleep 0)
-                       (loop))))))
-
-(define uber-frame%
-        (class frame%
-          (super-new)
-          (define (on-close)
-            (displayln "Tlowzin")
-            (Close-Connection))
-          (augment on-close)))
+    (let loop()
+      (define action (thread-receive))
+      (action)
+      (sleep 0)
+      (loop)))))
 
 (define _GLOCK (make-semaphore 1))
 
@@ -78,7 +64,7 @@ Idea for layout:
 |#
 
 (define layout/global-frame 
-  (new uber-frame%
+  (new frame%
        [label (string-append (l10n 'name)
                              " "
                              (l10n 'version))]
@@ -377,6 +363,6 @@ Idea for layout:
     [(_ exp1 ...) (thread-send doer-thread
                                (thunk exp1 ...))]))
 
-[void (thread Main)]
+(thread Main)
 
 (provide (all-defined-out))

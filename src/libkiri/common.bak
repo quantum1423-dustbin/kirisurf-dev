@@ -1,11 +1,4 @@
 #lang typed/racket
-(define-values (bin bout) (make-pipe))
-(define-values (gin gout) (make-pipe))
-[define a [open-output-file "kirisurf.log" #:exists 'replace]]
-;(current-input-port bin)
-;[current-output-port a]
-;[current-error-port a]
-
 (require typed/racket/date)
 (require/typed libkiri/untyped
                (_with-timeout (All (a) (Positive-Integer (-> a) -> (U #f a))))

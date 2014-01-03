@@ -7,6 +7,7 @@
 (require libkiri/protocol/authentication)
 (require racket/math)
 (require libkiri/nicker)
+(require libkiri/config)
 
 (struct: directory-info ((host-table : (HashTable Symbol (List String Integer)))
                          (adjacency-table : (HashTable Symbol (Listof Symbol)))
@@ -117,8 +118,9 @@
       ;; Another case: path length too long (> 5)
       [(and (exit? current)
             (or (and (< (get-random 100) 50)
-                     (>= (length history) 2))
-                (> (length history) 5))) (reverse (cons current history))]
+                     (>= (length history) (sub1 (cfg/int 'MinCircuitLength))))
+                (>= (length history) (sub1 (cfg/int 'MaxCircuitLength))))) 
+       (reverse (cons current history))]
       ;; Otherwise, we extend the path.
       [else (define adjacent-nodes (get-adjacent current))
             (debug 5 "~a is adjacent to ~a" current adjacent-nodes)
@@ -129,7 +131,7 @@
             (cond
               [(empty? viable-nexts) (cond
                                        [(and (exit? current)
-                                             (>= (length history) 2))
+                                             (>= (length history) (sub1 (cfg/int 'MinCircuitLength))))
                                         (reverse (cons current history))]
                                        [else (define next-node (selector adjacent-nodes))
                                              (auxiliary next-node (cons current history))])]
